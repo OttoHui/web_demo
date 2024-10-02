@@ -1,0 +1,35 @@
+services:
+  web-demo-db:
+    image: mysql
+    restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=db
+      - MYSQL_USER=ctfuser
+      - MYSQL_PASSWORD=cows-forward-fill-born
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  web-demo:
+    build: .
+    restart: on-failure:10
+    deploy: {resources: {limits: {cpus: '1', memory: 256M}}}
+    environment:
+      - PORT=8080
+      - MYSQL_DATABASE=db
+      - MYSQL_USER=ctfuser
+      - MYSQL_PASSWORD=cows-forward-fill-born
+      - FLAG0=cuhk24ctf{flag0_w0w_you_know_how_to_read_network_traffic}
+      - FLAG1=cuhk24ctf{flag1_w0w_this_is_probably_your_furst_seek_cool_injection_method}
+      - ADMIN_PASSWORD=cuhk24ctf{flag4_0w0_you_got_admin_password_of_the_website}
+    ports:
+      - 23999:8080
+    depends_on:
+      web-demo-db:
+        condition: service_healthy
+  
